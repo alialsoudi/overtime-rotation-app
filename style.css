@@ -4,7 +4,7 @@ body {
     color: #333;
     padding: 20px;
     direction: rtl; 
-    padding-bottom: 50px; /* زيادة التباعد للفوتر */
+    padding-bottom: 50px; 
 }
 
 header {
@@ -19,7 +19,6 @@ header h1 {
     margin-bottom: 5px; 
 }
 
-/* تنسيق اسم الشركة */
 .company-name {
     font-size: 1.2em;
     font-weight: 300;
@@ -71,14 +70,27 @@ form button {
     font-size: 1em;
 }
 
-/* ⬅️ تقليل التباعد العام لخلايا الجدول */
+/* ⬅️ تنسيق زر المسح الجديد */
+.clear-button {
+    background-color: #dc3545; /* لون أحمر */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 15px;
+    width: 90%; /* نفس عرض حقول الإدخال */
+    display: block;
+    text-align: center;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
 }
 
-/* ⬅️ تقليل التباعد الأساسي لخلايا الجدول */
 table th, table td {
     border: 1px solid #ddd;
     padding: 5px; 
@@ -93,8 +105,6 @@ table th {
     background-color: #d4edda;
     font-weight: bold;
 }
-
-/* ======== التعديلات الخاصة بضغط البيانات في جدول سجل الدوام ======== */
 
 .responsive-table-wrap {
     overflow-x: auto; 
@@ -114,7 +124,6 @@ table th {
     table-layout: auto; 
 }
 
-/* ======== تنسيق الفوتر (الحقوق) ======== */
 .app-footer {
     text-align: center;
     padding: 15px 0;
