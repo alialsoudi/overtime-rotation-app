@@ -49,7 +49,11 @@
             <input type="number" id="hoursWorked" min="1" required>
             
             <label for="supervisorName">مشرف الوردية:</label>
-            <input type="text" id="supervisorName" required>
+            <select id="supervisorName" required>
+                <option value="" disabled selected>-- اختر المشرف --</option>
+                <option value="م.نضال المومني">م.نضال المومني</option>
+                <option value="نائل قصقص">نائل قصقص</option>
+            </select>
             
             <label for="notes">ملاحظات:</label>
             <textarea id="notes"></textarea>
