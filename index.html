@@ -23,17 +23,17 @@
         <h2>إضافة دوام إضافي جديد</h2>
         <form id="overtime-form">
             <label for="employeeName">اسم الموظف:</label>
-            <input type="text" id="employeeName" required list="employee-list">
-            <datalist id="employee-list">
-                <option value="علي السعودي">
-                <option value="احمد الصقور">
-                <option value="قصي النعيمات">
-                <option value="عمار الغرابلي">
-                <option value="أحمد حامد">
-                <option value="عاصم القواسمة">
-                <option value="محمد العسيلي">
-                <option value="صهيب الرواشدة">
-            </datalist>
+            <select id="employeeName" required>
+                <option value="" disabled selected>-- اختر اسم الموظف --</option>
+                <option value="علي السعودي">علي السعودي</option>
+                <option value="احمد الصقور">احمد الصقور</option>
+                <option value="قصي النعيمات">قصي النعيمات</option>
+                <option value="عمار الغرابلي">عمار الغرابلي</option>
+                <option value="أحمد حامد">أحمد حامد</option>
+                <option value="عاصم القواسمة">عاصم القواسمة</option>
+                <option value="محمد العسيلي">محمد العسيلي</option>
+                <option value="صهيب الرواشدة">صهيب الرواشدة</option>
+            </select>
             
             <label for="shiftType">الشيفت:</label>
             <select id="shiftType" required>
