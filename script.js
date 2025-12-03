@@ -4,6 +4,18 @@ const ADMIN_PASSWORD = 'APC2025';
 // الأيام لملء عمود "اليوم"
 const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
 
+// ⬅️ قائمة بجميع الموظفين لضمان ظهورهم في جدول الدور
+const ALL_EMPLOYEES = [
+    "علي السعودي", 
+    "احمد الصقور", 
+    "قصي النعيمات", 
+    "عمار الغرابلي", 
+    "أحمد حامد", 
+    "عاصم القواسمة", 
+    "محمد العسيلي", 
+    "صهيب الرواشدة"
+];
+
 document.addEventListener('DOMContentLoaded', () => {
     // تبدأ بتحميل البيانات من Firebase
     loadDataFromFirebase();
@@ -22,7 +34,6 @@ function loadDataFromFirebase() {
         const data = snapshot.val();
         
         // تحويل البيانات من كائن Firebase إلى مصفوفة
-        // استخدام Object.keys ثم map للحصول على مفاتيح Firebase للمستقبل إذا لزم الأمر
         const entriesArray = [];
         if (data) {
             Object.keys(data).forEach(key => {
@@ -45,7 +56,7 @@ function handleFormSubmit(event) {
         shift: document.getElementById('shiftType').value,
         date: document.getElementById('dateWorked').value,
         hours: parseFloat(document.getElementById('hoursWorked').value),
-        supervisor: document.getElementById('supervisorName').value,
+        supervisor: document.getElementById('supervisorName').value, // القيمة تأتي من القائمة المنسدلة
         notes: document.getElementById('notes').value,
         timestamp: new Date().toISOString()
     };
@@ -59,28 +70,38 @@ function handleFormSubmit(event) {
 
 
 // 2. حساب إجمالي الساعات وتحديد الدور
+// ⬅️ تم تعديل هذه الدالة لتبدأ بحساب إجمالي الساعات صفر لكل الموظفين المسجلين في ALL_EMPLOYEES
 function calculateTotals(entriesArray) {
     const totals = {};
-    const employees = new Set();
-
-    entriesArray.forEach(entry => {
-        employees.add(entry.name);
-        totals[entry.name] = (totals[entry.name] || 0) + entry.hours;
+    
+    // 1. تهيئة مجموع الساعات لجميع الموظفين إلى صفر لضمان ظهورهم
+    ALL_EMPLOYEES.forEach(name => {
+        totals[name] = 0;
     });
 
-    const sortedTotals = Array.from(employees).map(name => ({
+    // 2. تجميع الساعات الفعلية من قاعدة البيانات
+    entriesArray.forEach(entry => {
+        // نتحقق إذا كان اسم الموظف موجودًا في القائمة المعتمدة
+        if (ALL_EMPLOYEES.includes(entry.name)) {
+            totals[entry.name] += entry.hours;
+        }
+    });
+
+    // 3. تحويل كائن المجموع إلى مصفوفة للفرز
+    const sortedTotals = ALL_EMPLOYEES.map(name => ({
         name: name,
         totalHours: totals[name]
     }));
 
+    // 4. الفرز وتحديد الدور (الأقل ساعات أولاً)
     sortedTotals.sort((a, b) => a.totalHours - b.totalHours);
 
-    const nextInLine = sortedTotals.length > 0 ? sortedTotals[0].name : "لا يوجد بيانات بعد";
+    const nextInLine = sortedTotals.length > 0 ? sortedTotals[0].name : "لا يوجد موظفين مسجلين";
 
     return { sortedTotals, nextInLine };
 }
 
-// 3. عرض الجداول
+// 3. عرض الجداول (تبقى كما هي)
 function renderTables(overtimeEntries) {
     const { sortedTotals, nextInLine } = calculateTotals(overtimeEntries);
 
