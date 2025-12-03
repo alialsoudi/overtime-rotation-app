@@ -70,7 +70,7 @@ form button {
     font-size: 1em;
 }
 
-/* ⬅️ تنسيق زر المسح الجديد */
+/* تنسيق زر المسح */
 .clear-button {
     background-color: #dc3545; /* لون أحمر */
     color: white;
@@ -80,9 +80,11 @@ form button {
     cursor: pointer;
     font-size: 1em;
     margin-top: 15px;
-    width: 90%; /* نفس عرض حقول الإدخال */
+    width: 90%; 
     display: block;
     text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 table {
