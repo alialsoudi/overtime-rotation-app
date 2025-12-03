@@ -101,6 +101,29 @@
         جميع الحقوق محفوظة © 2025 علي السعودي
     </footer>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script> 
+    
+    <script>
+        // كود تهيئة Firebase الخاص بمشروعك (مأخوذ من الإعدادات)
+        const firebaseConfig = {
+          apiKey: "AIzaSyA8nUSUtm31JCAzhiE6AGbfowv3KKiMT_o",
+          authDomain: "overtimetracker-7e49a.firebaseapp.com",
+          databaseURL: "https://overtimetracker-7e49a-default-rtdb.firebaseio.com",
+          projectId: "overtimetracker-7e49a",
+          storageBucket: "overtimetracker-7e49a.firebasestorage.app",
+          messagingSenderId: "248828578726",
+          appId: "1:248828578726:web:52875c52152db2414c1d67",
+          measurementId: "G-0WB0LJDD8Z"
+        };
+        
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // إنشاء مرجع لقاعدة البيانات
+        const database = firebase.database();
+    </script>
+    
     <script src="script.js"></script>
 </body>
 </html>
