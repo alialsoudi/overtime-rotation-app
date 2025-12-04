@@ -39,7 +39,7 @@ function handleLogin(event) {
         loginScreen.style.display = 'none';
         appContent.style.display = 'block';
 
-        // ⬅️ إصلاح: حفظ كل تسجيل دخول في سجل 'loginLog' باستخدام push()
+        // حفظ كل تسجيل دخول في سجل 'loginLog' باستخدام push()
         const loginEntry = {
             name: enteredName || "اسم غير مدخل", 
             timestamp: new Date().toISOString()
@@ -63,7 +63,7 @@ function initializeAppListeners() {
     loadDataFromFirebase();
     document.getElementById('overtime-form').addEventListener('submit', handleFormSubmit);
     document.getElementById('clearDataButton').addEventListener('click', clearAllData);
-    document.getElementById('showLastLoginButton').addEventListener('click', showLoginLog); // ⬅️ تم تغيير اسم الدالة
+    document.getElementById('showLastLoginButton').addEventListener('click', showLoginLog); 
 }
 
 
@@ -130,7 +130,7 @@ function calculateTotals(entriesArray) {
     // 4. الفرز وتحديد الدور (الأقل ساعات أولاً)
     sortedTotals.sort((a, b) => a.totalHours - b.totalHours);
 
-    // ⬅️ إصلاح منطق عرض الرسالة
+    // منطق عرض الرسالة: إذا كان مجموع الساعات الكلي صفرًا
     let nextInLine;
     if (totalHoursSum === 0) {
         nextInLine = "لا يوجد دوام مسجل"; 
@@ -154,7 +154,7 @@ function renderTables(overtimeEntries) {
     sortedTotals.forEach((data, index) => {
         const row = totalsBody.insertRow();
         
-        // ⬅️ ضمان عدم تمييز أي شخص إذا كان مجموع الساعات صفر
+        // ضمان عدم تمييز أي شخص إذا كان مجموع الساعات صفر
         if (index === 0 && data.totalHours > 0) { 
             row.classList.add('next-person');
         }
@@ -204,37 +204,48 @@ function clearAllData() {
     }
 }
 
-// ⬅️ وظيفة جديدة ومعدلة: عرض سجل الدخول (قائمة)
+// ⬅️ وظيفة عرض سجل الدخول (مع تعديل العرض لآخر 100 ومدخلات)
 function showLoginLog() {
-    const enteredPassword = prompt("الرجاء إدخال كلمة سر المشرف لعرض سجل الدخول:");
     const lastLoginInfo = document.getElementById('lastLoginInfo');
+    
+    // منطق إخفاء/إظهار المنطقة عند الضغط على الزر مرة أخرى
+    if (lastLoginInfo.style.display === 'block') {
+        lastLoginInfo.style.display = 'none';
+        lastLoginInfo.innerHTML = "";
+        return;
+    }
+
+    const enteredPassword = prompt("الرجاء إدخال كلمة سر المشرف لعرض سجل الدخول:");
     
     lastLoginInfo.innerHTML = ""; 
 
     if (enteredPassword === ADMIN_PASSWORD) {
         database.ref('loginLog').once('value').then(snapshot => {
             const data = snapshot.val();
+            
+            // إظهار المنطقة عند نجاح تسجيل الدخول
+            lastLoginInfo.style.display = 'block'; 
+            
             if (data) {
                 const logArray = [];
-                // تحويل الكائن إلى مصفوفة للفرز
                 Object.keys(data).forEach(key => {
                     logArray.push(data[key]);
                 });
 
-                // الفرز حسب التاريخ (الأحدث أولاً)
                 logArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-                let html = '<h4>آخر 10 عمليات تسجيل دخول:</h4><ol style="list-style-type: decimal; margin-right: 25px; text-align: right; padding-right: 0;">';
+                // ⬅️ إزالة العنوان وعرض آخر 100
+                let html = '<ol style="list-style-type: decimal; margin-right: 20px; text-align: right; padding-right: 0;">';
                 
-                // عرض آخر 10 سجلات فقط
-                logArray.slice(0, 10).forEach(entry => {
+                // عرض آخر 100 سجل فقط
+                logArray.slice(0, 100).forEach(entry => {
                     const date = new Date(entry.timestamp);
-                    // تنسيق التاريخ والوقت
                     const formattedDate = date.toLocaleDateString('ar-EG', { 
                         year: 'numeric', month: 'short', day: 'numeric', 
                         hour: '2-digit', minute: '2-digit', hour12: true 
                     });
-                    html += `<li style="margin-bottom: 5px;"><strong>${entry.name}</strong> في ${formattedDate}</li>`;
+                    // عرض الاسم والوقت
+                    html += `<li style="margin-bottom: 5px;"> قام <strong>${entry.name}</strong> بالدخول في: ${formattedDate}</li>`;
                 });
                 html += '</ol>';
                 
@@ -247,9 +258,11 @@ function showLoginLog() {
         }).catch(error => {
             lastLoginInfo.textContent = "خطأ في قراءة البيانات: " + error.message;
             lastLoginInfo.style.color = 'red';
+            lastLoginInfo.style.display = 'block';
         });
     } else if (enteredPassword !== null) {
         lastLoginInfo.textContent = "كلمة سر المشرف غير صحيحة.";
         lastLoginInfo.style.color = 'red';
+        lastLoginInfo.style.display = 'block';
     }
 }
