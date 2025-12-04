@@ -1,6 +1,6 @@
 // كلمة سر الدخول للموقع 
 const LOGIN_PASSWORD = 'APC123'; 
-// كلمة السر المطلوبة لحذف البيانات 
+// كلمة السر المطلوبة لحذف البيانات أو استعراض سجل المشرف
 const ADMIN_PASSWORD = 'APC2025'; 
 
 // الأيام لملء عمود "اليوم"
@@ -24,10 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =======================================================
-// وظيفة: معالجة تسجيل الدخول وفتح التطبيق
+// وظيفة: معالجة تسجيل الدخول وحفظ اسم المستخدم
 // =======================================================
 function handleLogin(event) {
     event.preventDefault();
+    const enteredName = document.getElementById('loginName').value; // جلب الاسم
     const enteredPassword = document.getElementById('loginPassword').value;
     const loginScreen = document.getElementById('login-screen');
     const appContent = document.getElementById('app-content');
@@ -37,8 +38,15 @@ function handleLogin(event) {
         // كلمة السر صحيحة
         loginScreen.style.display = 'none';
         appContent.style.display = 'block';
+
+        // حفظ آخر تسجيل دخول في Firebase
+        const lastLoginEntry = {
+            name: enteredName || "اسم غير مدخل", 
+            timestamp: new Date().toISOString()
+        };
+        // حفظ البيانات في عقدة 'lastLogin'
+        database.ref('lastLogin').set(lastLoginEntry); 
         
-        // بعد الدخول، يتم تحميل البيانات وربط باقي مستمعات الأحداث
         initializeAppListeners();
         
     } else {
@@ -56,6 +64,7 @@ function initializeAppListeners() {
     loadDataFromFirebase();
     document.getElementById('overtime-form').addEventListener('submit', handleFormSubmit);
     document.getElementById('clearDataButton').addEventListener('click', clearAllData);
+    document.getElementById('showLastLoginButton').addEventListener('click', showLastLogin); 
 }
 
 
@@ -98,6 +107,7 @@ function handleFormSubmit(event) {
 // 2. حساب إجمالي الساعات وتحديد الدور
 function calculateTotals(entriesArray) {
     const totals = {};
+    let totalHoursSum = 0; // متغير لحساب مجموع الساعات الكلي
     
     // 1. تهيئة مجموع الساعات لجميع الموظفين إلى صفر لضمان ظهورهم
     ALL_EMPLOYEES.forEach(name => {
@@ -108,6 +118,7 @@ function calculateTotals(entriesArray) {
     entriesArray.forEach(entry => {
         if (ALL_EMPLOYEES.includes(entry.name)) {
             totals[entry.name] += entry.hours;
+            totalHoursSum += entry.hours; // تجميع المجموع الكلي
         }
     });
 
@@ -120,7 +131,13 @@ function calculateTotals(entriesArray) {
     // 4. الفرز وتحديد الدور (الأقل ساعات أولاً)
     sortedTotals.sort((a, b) => a.totalHours - b.totalHours);
 
-    const nextInLine = sortedTotals.length > 0 ? sortedTotals[0].name : "لا يوجد موظفين مسجلين";
+    // ⬅️ منطق جديد: إذا كان مجموع الساعات الكلي صفرًا، اعرض الرسالة المطلوبة
+    let nextInLine;
+    if (totalHoursSum === 0) {
+        nextInLine = "لا يوجد دوام مسجل"; 
+    } else {
+        nextInLine = sortedTotals.length > 0 ? sortedTotals[0].name : "لا يوجد موظفين مسجلين";
+    }
 
     return { sortedTotals, nextInLine };
 }
@@ -138,7 +155,7 @@ function renderTables(overtimeEntries) {
     sortedTotals.forEach((data, index) => {
         const row = totalsBody.insertRow();
         
-        if (index === 0) {
+        if (index === 0 && data.totalHours > 0) { // التحديد يكون فقط عندما يكون هناك دوام مسجل
             row.classList.add('next-person');
         }
 
@@ -184,5 +201,40 @@ function clearAllData() {
             });
     } else if (enteredPassword !== null) {
         alert("كلمة سر المشرف غير صحيحة. لا يمكن مسح البيانات.");
+    }
+}
+
+// وظيفة: عرض آخر من سجل دخوله (بكلمة سر المشرف)
+function showLastLogin() {
+    const enteredPassword = prompt("الرجاء إدخال كلمة سر المشرف لمعرفة آخر من دخل:");
+    const lastLoginInfo = document.getElementById('lastLoginInfo');
+    
+    // مسح الرسالة السابقة
+    lastLoginInfo.textContent = ""; 
+
+    if (enteredPassword === ADMIN_PASSWORD) {
+        database.ref('lastLogin').once('value').then(snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                const date = new Date(data.timestamp);
+                // تنسيق التاريخ والوقت ليكون سهل القراءة
+                const formattedDate = date.toLocaleDateString('ar-EG', { 
+                    year: 'numeric', month: 'long', day: 'numeric', 
+                    hour: '2-digit', minute: '2-digit', hour12: true 
+                });
+                
+                lastLoginInfo.innerHTML = `آخر من سجل دخول هو: <strong>${data.name}</strong> في ${formattedDate}.`;
+                lastLoginInfo.style.color = '#007bff';
+            } else {
+                lastLoginInfo.textContent = "لا يوجد سجل تسجيل دخول سابق.";
+                lastLoginInfo.style.color = 'gray';
+            }
+        }).catch(error => {
+            lastLoginInfo.textContent = "خطأ في قراءة البيانات: " + error.message;
+            lastLoginInfo.style.color = 'red';
+        });
+    } else if (enteredPassword !== null) {
+        lastLoginInfo.textContent = "كلمة سر المشرف غير صحيحة.";
+        lastLoginInfo.style.color = 'red';
     }
 }
