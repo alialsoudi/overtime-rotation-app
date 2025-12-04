@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام تتبع الدوام الإضافي - شركة البوتاس العربية</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div id="login-screen" class="login-container">
-        <header>
+        <header class="modern-header">
             <h1>تسجيل الدخول للنظام</h1>
             <p class="company-name">شركة البوتاس العربية</p>
         </header>
@@ -21,19 +24,19 @@
         </form>
     </div>
     <div id="app-content" style="display:none;">
-        <header>
+        <header class="modern-header">
             <h1>نظام إدارة الدوام الإضافي</h1>
             <p class="company-name">شركة البوتاس العربية</p>
         </header>
 
-        <div class="dashboard">
+        <div class="dashboard card">
             <h2>من عليه الدور الآن؟</h2>
             <div id="next-in-line" class="rotation-card">
                 جاري الحساب...
             </div>
         </div>
 
-        <section class="form-section">
+        <section class="form-section card">
             <h2>إضافة دوام إضافي جديد</h2>
             <form id="overtime-form">
                 <label for="employeeName">اسم الموظف:</label>
@@ -72,11 +75,11 @@
                 <label for="notes">ملاحظات:</label>
                 <textarea id="notes"></textarea>
                 
-                <button type="submit">تسجيل الدوام</button>
+                <button type="submit" class="submit-button">تسجيل الدوام</button>
             </form>
         </section>
 
-        <section class="summary-section">
+        <section class="summary-section card">
             <h2>ملخص مجموع الساعات والدور</h2>
             <table id="totals-table">
                 <thead>
@@ -91,7 +94,7 @@
             </table>
         </section>
 
-        <section class="log-section">
+        <section class="log-section card">
             <h2>سجل الدوام الإضافي الكامل</h2>
             
             <div class="responsive-table-wrap"> 
@@ -123,7 +126,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script> 
     
     <script>
-        // كود تهيئة Firebase الخاص بمشروعك (لا يتغير)
+        // كود تهيئة Firebase الخاص بمشروعك 
         const firebaseConfig = {
           apiKey: "AIzaSyA8nUSUtm31JCAzhiE6AGbfowv3KKiMT_o",
           authDomain: "overtimetracker-7e49a.firebaseapp.com",
@@ -135,10 +138,7 @@
           measurementId: "G-0WB0LJDD8Z"
         };
         
-        // تهيئة Firebase
         firebase.initializeApp(firebaseConfig);
-        
-        // إنشاء مرجع لقاعدة البيانات
         const database = firebase.database();
     </script>
     
