@@ -1,10 +1,12 @@
-// كلمة السر المطلوبة لحذف البيانات
+// كلمة سر الدخول للموقع (يمكنك تغييرها)
+const LOGIN_PASSWORD = 'APC123'; 
+// كلمة السر المطلوبة لحذف البيانات (تبقى كما هي)
 const ADMIN_PASSWORD = 'APC2025'; 
 
 // الأيام لملء عمود "اليوم"
 const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
 
-// ⬅️ قائمة بجميع الموظفين لضمان ظهورهم في جدول الدور
+// قائمة بجميع الموظفين لضمان ظهورهم في جدول الدور
 const ALL_EMPLOYEES = [
     "علي السعودي", 
     "احمد الصقور", 
@@ -17,23 +19,56 @@ const ALL_EMPLOYEES = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    // تبدأ بتحميل البيانات من Firebase
-    loadDataFromFirebase();
-
-    // إضافة مستمع لحدث إرسال النموذج
-    document.getElementById('overtime-form').addEventListener('submit', handleFormSubmit);
+    // ⬅️ الإجراء الأول: ربط نموذج تسجيل الدخول
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
     
-    // إضافة مستمع لزر مسح البيانات الجديد
-    document.getElementById('clearDataButton').addEventListener('click', clearAllData);
+    // باقي المستمعات (لن تُضاف إلا بعد تسجيل الدخول بنجاح)
 });
 
-// وظيفة جديدة: تحميل البيانات من Firebase
+// =======================================================
+// وظيفة جديدة: معالجة تسجيل الدخول
+// =======================================================
+function handleLogin(event) {
+    event.preventDefault();
+    const enteredPassword = document.getElementById('loginPassword').value;
+    const loginScreen = document.getElementById('login-screen');
+    const appContent = document.getElementById('app-content');
+    const message = document.getElementById('login-message');
+
+    if (enteredPassword === LOGIN_PASSWORD) {
+        // كلمة السر صحيحة: إخفاء شاشة الدخول وعرض التطبيق
+        loginScreen.style.display = 'none';
+        appContent.style.display = 'block';
+        
+        // بعد الدخول، يتم تحميل البيانات وربط باقي مستمعات الأحداث
+        initializeAppListeners();
+        
+    } else {
+        // كلمة السر غير صحيحة
+        message.textContent = 'كلمة السر غير صحيحة.';
+        message.style.display = 'block';
+        document.getElementById('loginPassword').value = ''; // مسح الحقل
+    }
+}
+
+// =======================================================
+// وظيفة جديدة: تهيئة مستمعات التطبيق بعد تسجيل الدخول
+// =======================================================
+function initializeAppListeners() {
+    loadDataFromFirebase();
+    document.getElementById('overtime-form').addEventListener('submit', handleFormSubmit);
+    document.getElementById('clearDataButton').addEventListener('click', clearAllData);
+}
+
+
+// ... (باقي الدوال تبقى كما هي) ...
+
+
+// وظيفة تحميل البيانات من Firebase
 function loadDataFromFirebase() {
-    // الاستماع لأي تغييرات تحدث في عقدة 'log' في قاعدة البيانات
     database.ref('log').on('value', (snapshot) => {
         const data = snapshot.val();
         
-        // تحويل البيانات من كائن Firebase إلى مصفوفة
         const entriesArray = [];
         if (data) {
             Object.keys(data).forEach(key => {
@@ -41,7 +76,6 @@ function loadDataFromFirebase() {
             });
         }
         
-        // تحديث وعرض الجداول بالبيانات الجديدة
         renderTables(entriesArray);
     });
 }
@@ -56,44 +90,35 @@ function handleFormSubmit(event) {
         shift: document.getElementById('shiftType').value,
         date: document.getElementById('dateWorked').value,
         hours: parseFloat(document.getElementById('hoursWorked').value),
-        supervisor: document.getElementById('supervisorName').value, // القيمة تأتي من القائمة المنسدلة
+        supervisor: document.getElementById('supervisorName').value,
         notes: document.getElementById('notes').value,
         timestamp: new Date().toISOString()
     };
 
-    // الحفظ في Firebase: استخدام push() لإنشاء مفتاح فريد جديد
     database.ref('log').push(entry);
-
-    // مسح النموذج بعد الإدخال
     event.target.reset();
 }
 
 
 // 2. حساب إجمالي الساعات وتحديد الدور
-// ⬅️ تم تعديل هذه الدالة لتبدأ بحساب إجمالي الساعات صفر لكل الموظفين المسجلين في ALL_EMPLOYEES
 function calculateTotals(entriesArray) {
     const totals = {};
     
-    // 1. تهيئة مجموع الساعات لجميع الموظفين إلى صفر لضمان ظهورهم
     ALL_EMPLOYEES.forEach(name => {
         totals[name] = 0;
     });
 
-    // 2. تجميع الساعات الفعلية من قاعدة البيانات
     entriesArray.forEach(entry => {
-        // نتحقق إذا كان اسم الموظف موجودًا في القائمة المعتمدة
         if (ALL_EMPLOYEES.includes(entry.name)) {
             totals[entry.name] += entry.hours;
         }
     });
 
-    // 3. تحويل كائن المجموع إلى مصفوفة للفرز
     const sortedTotals = ALL_EMPLOYEES.map(name => ({
         name: name,
         totalHours: totals[name]
     }));
 
-    // 4. الفرز وتحديد الدور (الأقل ساعات أولاً)
     sortedTotals.sort((a, b) => a.totalHours - b.totalHours);
 
     const nextInLine = sortedTotals.length > 0 ? sortedTotals[0].name : "لا يوجد موظفين مسجلين";
@@ -101,15 +126,13 @@ function calculateTotals(entriesArray) {
     return { sortedTotals, nextInLine };
 }
 
-// 3. عرض الجداول (تبقى كما هي)
+// 3. عرض الجداول
 function renderTables(overtimeEntries) {
     const { sortedTotals, nextInLine } = calculateTotals(overtimeEntries);
 
-    // تحديث خانة "من عليه الدور الآن؟"
     const nextInLineElement = document.getElementById('next-in-line');
     nextInLineElement.textContent = nextInLine;
 
-    // عرض جدول ملخص الساعات (الدور)
     const totalsBody = document.querySelector('#totals-table tbody');
     totalsBody.innerHTML = '';
     
@@ -125,7 +148,6 @@ function renderTables(overtimeEntries) {
         row.insertCell().textContent = index + 1; 
     });
 
-    // عرض سجل الدوام الإضافي الكامل
     const logBody = document.querySelector('#log-table tbody');
     logBody.innerHTML = '';
 
@@ -154,7 +176,6 @@ function clearAllData() {
     const enteredPassword = prompt("الرجاء إدخال كلمة سر المشرف للمتابعة:");
     
     if (enteredPassword === ADMIN_PASSWORD) {
-        // حذف البيانات: تعيين العقدة 'log' إلى قيمة null لحذفها بالكامل من Firebase
         database.ref('log').set(null)
             .then(() => {
                 alert("تم مسح جميع البيانات بنجاح من قاعدة البيانات السحابية!");
