@@ -7,109 +7,123 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>نظام إدارة الدوام الإضافي</h1>
-        <p class="company-name">شركة البوتاس العربية</p>
-    </header>
 
-    <div class="dashboard">
-        <h2>من عليه الدور الآن؟</h2>
-        <div id="next-in-line" class="rotation-card">
-            جاري الحساب...
-        </div>
-    </div>
-
-    <section class="form-section">
-        <h2>إضافة دوام إضافي جديد</h2>
-        <form id="overtime-form">
-            <label for="employeeName">اسم الموظف:</label>
-            <select id="employeeName" required>
-                <option value="" disabled selected>-- اختر اسم الموظف --</option>
-                <option value="علي السعودي">علي السعودي</option>
-                <option value="احمد الصقور">احمد الصقور</option>
-                <option value="قصي النعيمات">قصي النعيمات</option>
-                <option value="عمار الغرابلي">عمار الغرابلي</option>
-                <option value="أحمد حامد">أحمد حامد</option>
-                <option value="عاصم القواسمة">عاصم القواسمة</option>
-                <option value="محمد العسيلي">محمد العسيلي</option>
-                <option value="صهيب الرواشدة">صهيب الرواشدة</option>
-            </select>
-            
-            <label for="shiftType">الشيفت:</label>
-            <select id="shiftType" required>
-                <option value="صباحي">صباحي</option>
-                <option value="مسائي">مسائي</option>
-                <option value="ليلي">ليلي</option>
-            </select>
-            
-            <label for="dateWorked">التاريخ:</label>
-            <input type="date" id="dateWorked" required>
-            
-            <label for="hoursWorked">عدد الساعات:</label>
-            <input type="number" id="hoursWorked" min="1" required>
-            
-            <label for="supervisorName">مشرف الوردية:</label>
-            <select id="supervisorName" required>
-                <option value="" disabled selected>-- اختر المشرف --</option>
-                <option value="م.نضال المومني">م.نضال المومني</option>
-                <option value="نائل قصقص">نائل قصقص</option>
-            </select>
-            
-            <label for="notes">ملاحظات:</label>
-            <textarea id="notes"></textarea>
-            
-            <button type="submit">تسجيل الدوام</button>
+    <div id="login-screen" class="login-container">
+        <header>
+            <h1>تسجيل الدخول للنظام</h1>
+            <p class="company-name">شركة البوتاس العربية</p>
+        </header>
+        <form id="login-form">
+            <label for="loginPassword">كلمة السر:</label>
+            <input type="password" id="loginPassword" required>
+            <button type="submit">دخول</button>
+            <p id="login-message" style="color: red; margin-top: 10px; display: none;">كلمة السر غير صحيحة.</p>
         </form>
-    </section>
+    </div>
+    <div id="app-content" style="display:none;">
+        <header>
+            <h1>نظام إدارة الدوام الإضافي</h1>
+            <p class="company-name">شركة البوتاس العربية</p>
+        </header>
 
-    <section class="summary-section">
-        <h2>ملخص مجموع الساعات والدور</h2>
-        <table id="totals-table">
-            <thead>
-                <tr>
-                    <th>اسم الموظف</th>
-                    <th>مجموع الساعات</th>
-                    <th>ترتيب الدور</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
-    </section>
+        <div class="dashboard">
+            <h2>من عليه الدور الآن؟</h2>
+            <div id="next-in-line" class="rotation-card">
+                جاري الحساب...
+            </div>
+        </div>
 
-    <section class="log-section">
-        <h2>سجل الدوام الإضافي الكامل</h2>
-        
-        <div class="responsive-table-wrap"> 
-            <table id="log-table">
+        <section class="form-section">
+            <h2>إضافة دوام إضافي جديد</h2>
+            <form id="overtime-form">
+                <label for="employeeName">اسم الموظف:</label>
+                <select id="employeeName" required>
+                    <option value="" disabled selected>-- اختر اسم الموظف --</option>
+                    <option value="علي السعودي">علي السعودي</option>
+                    <option value="احمد الصقور">احمد الصقور</option>
+                    <option value="قصي النعيمات">قصي النعيمات</option>
+                    <option value="عمار الغرابلي">عمار الغرابلي</option>
+                    <option value="أحمد حامد">أحمد حامد</option>
+                    <option value="عاصم القواسمة">عاصم القواسمة</option>
+                    <option value="محمد العسيلي">محمد العسيلي</option>
+                    <option value="صهيب الرواشدة">صهيب الرواشدة</option>
+                </select>
+                
+                <label for="shiftType">الشيفت:</label>
+                <select id="shiftType" required>
+                    <option value="صباحي">صباحي</option>
+                    <option value="مسائي">مسائي</option>
+                    <option value="ليلي">ليلي</option>
+                </select>
+                
+                <label for="dateWorked">التاريخ:</label>
+                <input type="date" id="dateWorked" required>
+                
+                <label for="hoursWorked">عدد الساعات:</label>
+                <input type="number" id="hoursWorked" min="1" required>
+                
+                <label for="supervisorName">مشرف الوردية:</label>
+                <select id="supervisorName" required>
+                    <option value="" disabled selected>-- اختر المشرف --</option>
+                    <option value="م.نضال المومني">م.نضال المومني</option>
+                    <option value="نائل قصقص">نائل قصقص</option>
+                </select>
+                
+                <label for="notes">ملاحظات:</label>
+                <textarea id="notes"></textarea>
+                
+                <button type="submit">تسجيل الدوام</button>
+            </form>
+        </section>
+
+        <section class="summary-section">
+            <h2>ملخص مجموع الساعات والدور</h2>
+            <table id="totals-table">
                 <thead>
                     <tr>
-                        <th>التاريخ</th>
-                        <th>اليوم</th>
                         <th>اسم الموظف</th>
-                        <th>الشيفت</th>
-                        <th>الساعات</th>
-                        <th>المشرف</th>
-                        <th>ملاحظات</th>
+                        <th>مجموع الساعات</th>
+                        <th>ترتيب الدور</th>
                     </tr>
                 </thead>
                 <tbody>
                     </tbody>
             </table>
-        </div>
-    </section>
-    
-    <button id="clearDataButton" class="clear-button">مسح جميع البيانات</button>
-    
-    <footer class="app-footer">
-        جميع الحقوق محفوظة © 2025 علي السعودي
-    </footer>
+        </section>
 
+        <section class="log-section">
+            <h2>سجل الدوام الإضافي الكامل</h2>
+            
+            <div class="responsive-table-wrap"> 
+                <table id="log-table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>اليوم</th>
+                            <th>اسم الموظف</th>
+                            <th>الشيفت</th>
+                            <th>الساعات</th>
+                            <th>المشرف</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <button id="clearDataButton" class="clear-button">مسح جميع البيانات</button>
+        
+        <footer class="app-footer">
+            جميع الحقوق محفوظة © 2025 علي السعودي
+        </footer>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script> 
     
     <script>
-        // كود تهيئة Firebase الخاص بمشروعك (مأخوذ من الإعدادات)
+        // كود تهيئة Firebase الخاص بمشروعك (لا يتغير)
         const firebaseConfig = {
           apiKey: "AIzaSyA8nUSUtm31JCAzhiE6AGbfowv3KKiMT_o",
           authDomain: "overtimetracker-7e49a.firebaseapp.com",
