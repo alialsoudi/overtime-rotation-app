@@ -147,7 +147,7 @@ table th {
     cursor: pointer;
     font-size: 1.1em;
     font-weight: 700;
-    margin: 20px auto;
+    margin: 20px auto 10px auto; /* ⬅️ تعديل الهامش السفلي ليتناسق مع الزر الجديد */
     width: 95%; 
     display: block;
     text-align: center;
@@ -156,6 +156,41 @@ table th {
 
 .clear-button:hover {
     background-color: #c82333;
+}
+
+/* ⬅️ زر الاستعلام الجديد (أخضر) */
+.info-button {
+    background-color: #28a745; /* أخضر */
+    color: white;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    margin: 10px auto; /* لترتيبه بعد زر المسح */
+    width: 95%; 
+    display: block;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.info-button:hover {
+    background-color: #1e7e34;
+}
+
+/* ⬅️ تنسيق منطقة عرض السجل */
+.info-output-area {
+    margin: 15px auto;
+    width: 95%;
+    padding: 15px;
+    background: #e6f7ff; /* خلفية فاتحة للعرض */
+    border: 1px solid #b3e0ff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: right;
+    display: none; /* يتم التحكم به من JS */
+    font-size: 0.95em;
 }
 
 /* الفوتر */
@@ -192,7 +227,7 @@ table th {
     color: #0056b3;
 }
 
-#loginPassword {
+#loginPassword, #loginName {
     width: 90%;
     padding: 10px;
     margin: 15px 0;
@@ -203,7 +238,7 @@ table th {
 }
 
 #login-form button {
-    background-color: #28a745; /* لون أخضر للدخول */
+    background-color: #28a745; 
     width: 95%;
     color: white;
     padding: 12px 15px;
