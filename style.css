@@ -158,7 +158,7 @@ table th {
     background-color: #c82333;
 }
 
-/* ⬅️ زر الاستعلام الجديد (أخضر) */
+/* زر الاستعلام الأخضر */
 .info-button {
     background-color: #28a745; /* أخضر */
     color: white;
@@ -179,7 +179,7 @@ table th {
     background-color: #1e7e34;
 }
 
-/* ⬅️ تنسيق منطقة عرض السجل */
+/* تنسيق منطقة عرض السجل */
 .info-output-area {
     margin: 15px auto;
     width: 95%;
@@ -201,6 +201,71 @@ table th {
     color: #777;
     border-top: 1px solid #ddd;
     margin-top: 30px;
+}
+
+/* ==================================== */
+/* أنماط الـ ACCORDION (الجداول القابلة للطي) */
+/* ==================================== */
+
+.accordion-item {
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f9f9f9;
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 15px;
+    background-color: #007bff; /* أزرق العنوان */
+    color: white;
+    text-align: right;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: 700;
+    transition: background-color 0.3s;
+    position: relative;
+    padding-left: 40px; /* مساحة للأيقونة */
+}
+
+.accordion-header:hover {
+    background-color: #0056b3;
+}
+
+/* أيقونة فتح/إغلاق (سهم) */
+.accordion-header::after {
+    content: '▼'; 
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%) rotate(0deg);
+    transition: transform 0.3s;
+}
+
+.accordion-header.active::after {
+    content: '▲'; 
+    transform: translateY(-50%) rotate(0deg);
+}
+
+.accordion-content {
+    padding: 0 15px 15px; 
+    background-color: white;
+    border-top: 1px solid #eee;
+    display: none; /* يتم التحكم به من JS */
+}
+
+/* تنسيق الجدول داخل الـ Accordion */
+.monthly-log-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.monthly-log-table th, .monthly-log-table td {
+    padding: 8px;
+    font-size: 0.85em;
 }
 
 /* ==================================== */
@@ -271,5 +336,9 @@ table th {
     .log-section table th, .log-section table td {
         font-size: 0.75em;
         padding: 6px;
+    }
+
+    .accordion-header {
+        font-size: 1.1em;
     }
 }
