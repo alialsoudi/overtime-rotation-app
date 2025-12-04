@@ -1,6 +1,6 @@
-// كلمة سر الدخول للموقع (يمكنك تغييرها)
+// كلمة سر الدخول للموقع 
 const LOGIN_PASSWORD = 'APC123'; 
-// كلمة السر المطلوبة لحذف البيانات (تبقى كما هي)
+// كلمة السر المطلوبة لحذف البيانات 
 const ADMIN_PASSWORD = 'APC2025'; 
 
 // الأيام لملء عمود "اليوم"
@@ -19,14 +19,12 @@ const ALL_EMPLOYEES = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    // ⬅️ الإجراء الأول: ربط نموذج تسجيل الدخول
+    // ربط نموذج تسجيل الدخول عند تحميل الصفحة
     document.getElementById('login-form').addEventListener('submit', handleLogin);
-    
-    // باقي المستمعات (لن تُضاف إلا بعد تسجيل الدخول بنجاح)
 });
 
 // =======================================================
-// وظيفة جديدة: معالجة تسجيل الدخول
+// وظيفة: معالجة تسجيل الدخول وفتح التطبيق
 // =======================================================
 function handleLogin(event) {
     event.preventDefault();
@@ -36,7 +34,7 @@ function handleLogin(event) {
     const message = document.getElementById('login-message');
 
     if (enteredPassword === LOGIN_PASSWORD) {
-        // كلمة السر صحيحة: إخفاء شاشة الدخول وعرض التطبيق
+        // كلمة السر صحيحة
         loginScreen.style.display = 'none';
         appContent.style.display = 'block';
         
@@ -47,21 +45,18 @@ function handleLogin(event) {
         // كلمة السر غير صحيحة
         message.textContent = 'كلمة السر غير صحيحة.';
         message.style.display = 'block';
-        document.getElementById('loginPassword').value = ''; // مسح الحقل
+        document.getElementById('loginPassword').value = ''; 
     }
 }
 
 // =======================================================
-// وظيفة جديدة: تهيئة مستمعات التطبيق بعد تسجيل الدخول
+// وظيفة: تهيئة مستمعات التطبيق بعد تسجيل الدخول
 // =======================================================
 function initializeAppListeners() {
     loadDataFromFirebase();
     document.getElementById('overtime-form').addEventListener('submit', handleFormSubmit);
     document.getElementById('clearDataButton').addEventListener('click', clearAllData);
 }
-
-
-// ... (باقي الدوال تبقى كما هي) ...
 
 
 // وظيفة تحميل البيانات من Firebase
@@ -104,21 +99,25 @@ function handleFormSubmit(event) {
 function calculateTotals(entriesArray) {
     const totals = {};
     
+    // 1. تهيئة مجموع الساعات لجميع الموظفين إلى صفر لضمان ظهورهم
     ALL_EMPLOYEES.forEach(name => {
         totals[name] = 0;
     });
 
+    // 2. تجميع الساعات الفعلية من قاعدة البيانات
     entriesArray.forEach(entry => {
         if (ALL_EMPLOYEES.includes(entry.name)) {
             totals[entry.name] += entry.hours;
         }
     });
 
+    // 3. تحويل كائن المجموع إلى مصفوفة للفرز
     const sortedTotals = ALL_EMPLOYEES.map(name => ({
         name: name,
         totalHours: totals[name]
     }));
 
+    // 4. الفرز وتحديد الدور (الأقل ساعات أولاً)
     sortedTotals.sort((a, b) => a.totalHours - b.totalHours);
 
     const nextInLine = sortedTotals.length > 0 ? sortedTotals[0].name : "لا يوجد موظفين مسجلين";
