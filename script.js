@@ -204,7 +204,7 @@ function clearAllData() {
     }
 }
 
-// ⬅️ وظيفة عرض سجل الدخول (مع تعديل العرض لآخر 100 ومدخلات)
+// وظيفة عرض سجل الدخول (مع تعديل العرض لآخر 100 ومدخلات)
 function showLoginLog() {
     const lastLoginInfo = document.getElementById('lastLoginInfo');
     
@@ -234,7 +234,7 @@ function showLoginLog() {
 
                 logArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-                // ⬅️ إزالة العنوان وعرض آخر 100
+                // إزالة العنوان وعرض آخر 100
                 let html = '<ol style="list-style-type: decimal; margin-right: 20px; text-align: right; padding-right: 0;">';
                 
                 // عرض آخر 100 سجل فقط
