@@ -18,6 +18,12 @@ const ALL_EMPLOYEES = [
     "صهيب الرواشدة"
 ];
 
+// قائمة بأسماء الشهور باللغة العربية
+const monthNames = [
+    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+];
+
 document.addEventListener('DOMContentLoaded', () => {
     // ربط نموذج تسجيل الدخول عند تحميل الصفحة
     document.getElementById('login-form').addEventListener('submit', handleLogin);
@@ -164,24 +170,121 @@ function renderTables(overtimeEntries) {
         row.insertCell().textContent = index + 1; 
     });
 
-    const logBody = document.querySelector('#log-table tbody');
-    logBody.innerHTML = '';
+    // ⬅️ منطق جديد لعرض سجل الدوام الإضافي حسب الشهر (Accordion)
 
-    const sortedLog = [...overtimeEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const monthlyLogContainer = document.getElementById('monthly-log-accordion');
+    monthlyLogContainer.innerHTML = '';
 
-    sortedLog.forEach(entry => {
-        const row = logBody.insertRow();
-        const dateObj = new Date(entry.date);
+    if (overtimeEntries.length === 0) {
+        monthlyLogContainer.innerHTML = '<p style="text-align: center; color: #555;">لا يوجد سجل دوام إضافي حالياً.</p>';
+        return;
+    }
 
-        row.insertCell().textContent = entry.date;
-        row.insertCell().textContent = days[dateObj.getDay()]; 
-        row.insertCell().textContent = entry.name;
-        row.insertCell().textContent = entry.shift;
-        row.insertCell().textContent = entry.hours;
-        row.insertCell().textContent = entry.supervisor;
-        row.insertCell().textContent = entry.notes;
+    // 1. تجميع البيانات حسب الشهر والسنة
+    const groupedByMonth = overtimeEntries.reduce((acc, entry) => {
+        const date = new Date(entry.date);
+        const monthIndex = date.getMonth();
+        const year = date.getFullYear();
+        const key = `${year}-${monthIndex}`; // مفتاح التجميع
+
+        if (!acc[key]) {
+            acc[key] = {
+                monthName: `${monthNames[monthIndex]} ${year}`,
+                entries: []
+            };
+        }
+        acc[key].entries.push(entry);
+        return acc;
+    }, {});
+
+    // 2. فرز الأشهر من الأحدث إلى الأقدم
+    const sortedMonths = Object.keys(groupedByMonth).sort((a, b) => {
+        // الفرز يكون تنازلياً حسب التاريخ (الأحدث أولاً)
+        return new Date(b.replace('-', '/1/')) - new Date(a.replace('-', '/1/'));
     });
+
+    // 3. توليد كود الـ Accordion HTML
+    let accordionHTML = '';
+    
+    sortedMonths.forEach((key, index) => {
+        const monthData = groupedByMonth[key];
+        const monthId = `collapse-${key}`; // ID فريد لكل شهر
+        const isFirst = index === 0; // فتح أول شهر تلقائياً
+
+        // فرز الإدخالات داخل الشهر نفسه حسب التاريخ (الأحدث أولاً)
+        monthData.entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const tableBody = monthData.entries.map(entry => {
+            const dateObj = new Date(entry.date);
+            return `
+                <tr>
+                    <td>${entry.date}</td>
+                    <td>${days[dateObj.getDay()]}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.shift}</td>
+                    <td>${entry.hours}</td>
+                    <td>${entry.supervisor}</td>
+                    <td>${entry.notes || '-'}</td>
+                </tr>
+            `;
+        }).join('');
+
+        const tableHTML = `
+            <div class="responsive-table-wrap"> 
+                <table class="monthly-log-table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>اليوم</th>
+                            <th>اسم الموظف</th>
+                            <th>الشيفت</th>
+                            <th>الساعات</th>
+                            <th>المشرف</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableBody}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        // بناء عنصر الـ Accordion
+        accordionHTML += `
+            <div class="accordion-item">
+                <button class="accordion-header ${isFirst ? 'active' : ''}" onclick="window.toggleAccordion('${monthId}', this)">
+                    ${monthData.monthName} (${monthData.entries.length} سجل)
+                </button>
+                <div id="${monthId}" class="accordion-content" style="display: ${isFirst ? 'block' : 'none'};">
+                    ${tableHTML}
+                </div>
+            </div>
+        `;
+    });
+
+    monthlyLogContainer.innerHTML = accordionHTML;
 }
+
+// ⬅️ وظيفة JavaScript للتحكم بفتح وإغلاق الـ Accordion
+window.toggleAccordion = function(contentId, headerElement) {
+    const content = document.getElementById(contentId);
+    const isActive = headerElement.classList.contains('active');
+
+    // إغلاق كل المحتويات الأخرى (للحفاظ على فتح محتوى واحد فقط)
+    document.querySelectorAll('.accordion-content').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('.accordion-header').forEach(h => h.classList.remove('active'));
+
+    if (!isActive) {
+        content.style.display = 'block';
+        headerElement.classList.add('active');
+    } else {
+        // إذا كان مفتوحاً وتم الضغط عليه، أغلقه
+        content.style.display = 'none';
+        headerElement.classList.remove('active');
+    }
+}
+
 
 // 4. دالة مسح البيانات (الحذف من Firebase)
 function clearAllData() {
@@ -204,7 +307,7 @@ function clearAllData() {
     }
 }
 
-// وظيفة عرض سجل الدخول (مع تعديل العرض لآخر 100 ومدخلات)
+// وظيفة عرض سجل الدخول (من قام بآخر تعديل؟)
 function showLoginLog() {
     const lastLoginInfo = document.getElementById('lastLoginInfo');
     
@@ -234,7 +337,7 @@ function showLoginLog() {
 
                 logArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-                // ⬅️ تم إزالة العنوان وعرض آخر 100 سجل 
+                // إزالة العنوان وعرض آخر 100 سجل 
                 let html = '<ol style="list-style-type: decimal; margin-right: 20px; text-align: right; padding-right: 0;">';
                 
                 // عرض آخر 100 سجل فقط
