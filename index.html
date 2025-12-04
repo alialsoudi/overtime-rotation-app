@@ -1,3 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تتبع الدوام الإضافي - شركة البوتاس العربية</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="login-screen" class="login-container">
+        <header class="modern-header">
+            <h1>تسجيل الدخول للنظام</h1>
+            <p class="company-name">شركة البوتاس العربية</p>
+        </header>
+        <form id="login-form">
+            <label for="loginName">اسمك للدخول:</label>
+            <input type="text" id="loginName" required> 
+            
+            <label for="loginPassword">كلمة السر:</label>
+            <input type="password" id="loginPassword" required>
+            <button type="submit">دخول</button>
+            <p id="login-message" style="color: red; margin-top: 10px; display: none;">كلمة السر غير صحيحة.</p>
+        </form>
+    </div>
+    <div id="app-content" style="display:none;">
+        <header class="modern-header">
+            <h1>نظام إدارة الدوام الإضافي</h1>
+            <p class="company-name">شركة البوتاس العربية</p>
+        </header>
+
+        <div class="dashboard card">
+            <h2>من عليه الدور الآن؟</h2>
+            <div id="next-in-line" class="rotation-card">
+                جاري الحساب...
+            </div>
+        </div>
+
+        <section class="form-section card">
+            <h2>إضافة دوام إضافي جديد</h2>
+            <form id="overtime-form">
+                <label for="employeeName">اسم الموظف:</label>
+                <select id="employeeName" required>
+                    <option value="" disabled selected>-- اختر اسم الموظف --</option>
+                    <option value="علي السعودي">علي السعودي</option>
+                    <option value="احمد الصقور">احمد الصقور</option>
+                    <option value="قصي النعيمات">قصي النعيمات</option>
+                    <option value="عمار الغرابلي">عمار الغرابلي</option>
+                    <option value="أحمد حامد">أحمد حامد</option>
+                    <option value="عاصم القواسمة">عاصم القواسمة</option>
+                    <option value="محمد العسيلي">محمد العسيلي</option>
+                    <option value="صهيب الرواشدة">صهيب الرواشدة</option>
+                </select>
+                
+                <label for="shiftType">الشيفت:</label>
+                <select id="shiftType" required>
+                    <option value="صباحي">صباحي</option>
+                    <option value="مسائي">مسائي</option>
+                    <option value="ليلي">ليلي</option>
+                </select>
+                
+                <label for="dateWorked">التاريخ:</label>
+                <input type="date" id="dateWorked" required>
+                
+                <label for="hoursWorked">عدد الساعات:</label>
+                <input type="number" id="hoursWorked" min="1" required>
+                
+                <label for="supervisorName">مشرف الوردية:</label>
+                <select id="supervisorName" required>
+                    <option value="" disabled selected>-- اختر المشرف --</option>
+                    <option value="م.نضال المومني">م.نضال المومني</option>
+                    <option value="نائل قصقص">نائل قصقص</option>
+                </select>
+                
+                <label for="notes">ملاحظات:</label>
+                <textarea id="notes"></textarea>
+                
+                <button type="submit" class="submit-button">تسجيل الدوام</button>
+            </form>
+        </section>
+
+        <section class="summary-section card">
+            <h2>ملخص مجموع الساعات والدور</h2>
+            <table id="totals-table">
+                <thead>
+                    <tr>
+                        <th>اسم الموظف</th>
+                        <th>مجموع الساعات</th>
+                        <th>ترتيب الدور</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </section>
+
         <section class="log-section card">
             <h2>سجل الدوام الإضافي الكامل</h2>
             
@@ -8,383 +107,33 @@
         
         <button id="clearDataButton" class="clear-button">مسح جميع البيانات</button>
         
-        ```
-
----
-
-## 2. 📄 الملف الثاني: `script.js` (تعديل دالة عرض الجداول)
-
-**🛑 يرجى استبدال كامل محتوى ملف `script.js` بهذا الكود:**
-
-```javascript
-// كلمة سر الدخول للموقع 
-const LOGIN_PASSWORD = 'APC123'; 
-// كلمة السر المطلوبة لحذف البيانات أو استعراض سجل المشرف
-const ADMIN_PASSWORD = 'APC2025'; 
-
-// الأيام لملء عمود "اليوم"
-const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
-
-// قائمة بجميع الموظفين لضمان ظهورهم في جدول الدور
-const ALL_EMPLOYEES = [
-    "علي السعودي", 
-    "احمد الصقور", 
-    "قصي النعيمات", 
-    "عمار الغرابلي", 
-    "أحمد حامد", 
-    "عاصم القواسمة", 
-    "محمد العسيلي", 
-    "صهيب الرواشدة"
-];
-
-// قائمة بأسماء الشهور باللغة العربية
-const monthNames = [
-    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
-];
-
-document.addEventListener('DOMContentLoaded', () => {
-    // ربط نموذج تسجيل الدخول عند تحميل الصفحة
-    document.getElementById('login-form').addEventListener('submit', handleLogin);
-});
-
-// =======================================================
-// وظيفة: معالجة تسجيل الدخول وحفظ اسم المستخدم
-// =======================================================
-function handleLogin(event) {
-    event.preventDefault();
-    const enteredName = document.getElementById('loginName').value; // جلب الاسم
-    const enteredPassword = document.getElementById('loginPassword').value;
-    const loginScreen = document.getElementById('login-screen');
-    const appContent = document.getElementById('app-content');
-    const message = document.getElementById('login-message');
-
-    if (enteredPassword === LOGIN_PASSWORD) {
-        // كلمة السر صحيحة
-        loginScreen.style.display = 'none';
-        appContent.style.display = 'block';
-
-        // حفظ كل تسجيل دخول في سجل 'loginLog' باستخدام push()
-        const loginEntry = {
-            name: enteredName || "اسم غير مدخل", 
-            timestamp: new Date().toISOString()
+        <button id="showLastLoginButton" class="info-button">من قام بآخر تعديل؟</button>
+        <p id="lastLoginInfo" class="info-output-area"></p>
+        
+        <footer class="app-footer">
+            جميع الحقوق محفوظة © 2025 علي السعودي
+        </footer>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script> 
+    
+    <script>
+        // كود تهيئة Firebase الخاص بمشروعك 
+        const firebaseConfig = {
+          apiKey: "AIzaSyA8nUSUtm31JCAzhiE6AGbfowv3KKiMT_o",
+          authDomain: "overtimetracker-7e49a.firebaseapp.com",
+          databaseURL: "https://overtimetracker-7e49a-default-rtdb.firebaseio.com",
+          projectId: "overtimetracker-7e49a",
+          storageBucket: "overtimetracker-7e49a.firebasestorage.app",
+          messagingSenderId: "248828578726",
+          appId: "1:248828578726:web:52875c52152db2414c1d67",
+          measurementId: "G-0WB0LJDD8Z"
         };
-        database.ref('loginLog').push(loginEntry); 
         
-        initializeAppListeners();
-        
-    } else {
-        // كلمة السر غير صحيحة
-        message.textContent = 'كلمة السر غير صحيحة.';
-        message.style.display = 'block';
-        document.getElementById('loginPassword').value = ''; 
-    }
-}
-
-// =======================================================
-// وظيفة: تهيئة مستمعات التطبيق بعد تسجيل الدخول
-// =======================================================
-function initializeAppListeners() {
-    loadDataFromFirebase();
-    document.getElementById('overtime-form').addEventListener('submit', handleFormSubmit);
-    document.getElementById('clearDataButton').addEventListener('click', clearAllData);
-    document.getElementById('showLastLoginButton').addEventListener('click', showLoginLog); 
-}
-
-
-// وظيفة تحميل البيانات من Firebase
-function loadDataFromFirebase() {
-    database.ref('log').on('value', (snapshot) => {
-        const data = snapshot.val();
-        
-        const entriesArray = [];
-        if (data) {
-            Object.keys(data).forEach(key => {
-                entriesArray.push(data[key]);
-            });
-        }
-        
-        renderTables(entriesArray);
-    });
-}
-
-
-// 1. معالجة إرسال النموذج (الحفظ في Firebase)
-function handleFormSubmit(event) {
-    event.preventDefault();
-
-    const entry = {
-        name: document.getElementById('employeeName').value,
-        shift: document.getElementById('shiftType').value,
-        date: document.getElementById('dateWorked').value,
-        hours: parseFloat(document.getElementById('hoursWorked').value),
-        supervisor: document.getElementById('supervisorName').value,
-        notes: document.getElementById('notes').value,
-        timestamp: new Date().toISOString()
-    };
-
-    database.ref('log').push(entry);
-    event.target.reset();
-}
-
-
-// 2. حساب إجمالي الساعات وتحديد الدور
-function calculateTotals(entriesArray) {
-    const totals = {};
-    let totalHoursSum = 0; 
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+    </script>
     
-    // 1. تهيئة مجموع الساعات لجميع الموظفين إلى صفر لضمان ظهورهم
-    ALL_EMPLOYEES.forEach(name => {
-        totals[name] = 0;
-    });
-
-    // 2. تجميع الساعات الفعلية من قاعدة البيانات
-    entriesArray.forEach(entry => {
-        if (ALL_EMPLOYEES.includes(entry.name)) {
-            totals[entry.name] += entry.hours;
-            totalHoursSum += entry.hours; 
-        }
-    });
-
-    // 3. تحويل كائن المجموع إلى مصفوفة للفرز
-    const sortedTotals = ALL_EMPLOYEES.map(name => ({
-        name: name,
-        totalHours: totals[name]
-    }));
-
-    // 4. الفرز وتحديد الدور (الأقل ساعات أولاً)
-    sortedTotals.sort((a, b) => a.totalHours - b.totalHours);
-
-    // منطق عرض الرسالة: إذا كان مجموع الساعات الكلي صفرًا
-    let nextInLine;
-    if (totalHoursSum === 0) {
-        nextInLine = "لا يوجد دوام مسجل"; 
-    } else {
-        nextInLine = sortedTotals.length > 0 ? sortedTotals[0].name : "لا يوجد موظفين مسجلين";
-    }
-
-    return { sortedTotals, nextInLine };
-}
-
-// 3. عرض الجداول
-function renderTables(overtimeEntries) {
-    const { sortedTotals, nextInLine } = calculateTotals(overtimeEntries);
-
-    const nextInLineElement = document.getElementById('next-in-line');
-    nextInLineElement.textContent = nextInLine;
-
-    const totalsBody = document.querySelector('#totals-table tbody');
-    totalsBody.innerHTML = '';
-    
-    sortedTotals.forEach((data, index) => {
-        const row = totalsBody.insertRow();
-        
-        // ضمان عدم تمييز أي شخص إذا كان مجموع الساعات صفر
-        if (index === 0 && data.totalHours > 0) { 
-            row.classList.add('next-person');
-        }
-
-        row.insertCell().textContent = data.name;
-        row.insertCell().textContent = data.totalHours;
-        row.insertCell().textContent = index + 1; 
-    });
-
-    // ⬅️ منطق جديد لعرض سجل الدوام الإضافي حسب الشهر (Accordion)
-
-    const monthlyLogContainer = document.getElementById('monthly-log-accordion');
-    monthlyLogContainer.innerHTML = '';
-
-    if (overtimeEntries.length === 0) {
-        monthlyLogContainer.innerHTML = '<p style="text-align: center; color: #555;">لا يوجد سجل دوام إضافي حالياً.</p>';
-        return;
-    }
-
-    // 1. تجميع البيانات حسب الشهر والسنة
-    const groupedByMonth = overtimeEntries.reduce((acc, entry) => {
-        const date = new Date(entry.date);
-        const monthIndex = date.getMonth();
-        const year = date.getFullYear();
-        const key = `${year}-${monthIndex}`; // مفتاح التجميع
-
-        if (!acc[key]) {
-            acc[key] = {
-                monthName: `${monthNames[monthIndex]} ${year}`,
-                entries: []
-            };
-        }
-        acc[key].entries.push(entry);
-        return acc;
-    }, {});
-
-    // 2. فرز الأشهر من الأحدث إلى الأقدم
-    const sortedMonths = Object.keys(groupedByMonth).sort((a, b) => {
-        // الفرز يكون تنازلياً حسب التاريخ (الأحدث أولاً)
-        return new Date(b.replace('-', '/1/')) - new Date(a.replace('-', '/1/'));
-    });
-
-    // 3. توليد كود الـ Accordion HTML
-    let accordionHTML = '';
-    
-    sortedMonths.forEach((key, index) => {
-        const monthData = groupedByMonth[key];
-        const monthId = `collapse-${key}`; // ID فريد لكل شهر
-        const isFirst = index === 0; // فتح أول شهر تلقائياً
-
-        // فرز الإدخالات داخل الشهر نفسه حسب التاريخ (الأحدث أولاً)
-        monthData.entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        const tableBody = monthData.entries.map(entry => {
-            const dateObj = new Date(entry.date);
-            return `
-                <tr>
-                    <td>${entry.date}</td>
-                    <td>${days[dateObj.getDay()]}</td>
-                    <td>${entry.name}</td>
-                    <td>${entry.shift}</td>
-                    <td>${entry.hours}</td>
-                    <td>${entry.supervisor}</td>
-                    <td>${entry.notes || '-'}</td>
-                </tr>
-            `;
-        }).join('');
-
-        const tableHTML = `
-            <div class="responsive-table-wrap"> 
-                <table class="monthly-log-table">
-                    <thead>
-                        <tr>
-                            <th>التاريخ</th>
-                            <th>اليوم</th>
-                            <th>اسم الموظف</th>
-                            <th>الشيفت</th>
-                            <th>الساعات</th>
-                            <th>المشرف</th>
-                            <th>ملاحظات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${tableBody}
-                    </tbody>
-                </table>
-            </div>
-        `;
-        
-        // بناء عنصر الـ Accordion
-        accordionHTML += `
-            <div class="accordion-item">
-                <button class="accordion-header ${isFirst ? 'active' : ''}" onclick="toggleAccordion('${monthId}', this)">
-                    ${monthData.monthName} (${monthData.entries.length} سجل)
-                </button>
-                <div id="${monthId}" class="accordion-content" style="display: ${isFirst ? 'block' : 'none'};">
-                    ${tableHTML}
-                </div>
-            </div>
-        `;
-    });
-
-    monthlyLogContainer.innerHTML = accordionHTML;
-}
-
-// ⬅️ وظيفة JavaScript للتحكم بفتح وإغلاق الـ Accordion
-window.toggleAccordion = function(contentId, headerElement) {
-    const content = document.getElementById(contentId);
-    const isActive = headerElement.classList.contains('active');
-
-    // إغلاق كل المحتويات الأخرى (للحفاظ على فتح محتوى واحد فقط)
-    document.querySelectorAll('.accordion-content').forEach(c => c.style.display = 'none');
-    document.querySelectorAll('.accordion-header').forEach(h => h.classList.remove('active'));
-
-    if (!isActive) {
-        content.style.display = 'block';
-        headerElement.classList.add('active');
-    } else {
-        // إذا كان مفتوحاً وتم الضغط عليه، أغلقه
-        content.style.display = 'none';
-        headerElement.classList.remove('active');
-    }
-}
-
-
-// 4. دالة مسح البيانات (الحذف من Firebase)
-function clearAllData() {
-    if (!confirm("هل أنت متأكد من أنك تريد حذف جميع بيانات الدوام الإضافي؟ لا يمكن التراجع عن هذا الإجراء.")) {
-        return; 
-    }
-    
-    const enteredPassword = prompt("الرجاء إدخال كلمة سر المشرف للمتابعة:");
-    
-    if (enteredPassword === ADMIN_PASSWORD) {
-        database.ref('log').set(null)
-            .then(() => {
-                alert("تم مسح جميع البيانات بنجاح من قاعدة البيانات السحابية!");
-            })
-            .catch((error) => {
-                alert("حدث خطأ أثناء مسح البيانات: " + error.message);
-            });
-    } else if (enteredPassword !== null) {
-        alert("كلمة سر المشرف غير صحيحة. لا يمكن مسح البيانات.");
-    }
-}
-
-// وظيفة عرض سجل الدخول (من قام بآخر تعديل؟)
-function showLoginLog() {
-    const lastLoginInfo = document.getElementById('lastLoginInfo');
-    
-    // منطق إخفاء/إظهار المنطقة عند الضغط على الزر مرة أخرى
-    if (lastLoginInfo.style.display === 'block') {
-        lastLoginInfo.style.display = 'none';
-        lastLoginInfo.innerHTML = "";
-        return;
-    }
-
-    const enteredPassword = prompt("الرجاء إدخال كلمة سر المشرف لعرض سجل الدخول:");
-    
-    lastLoginInfo.innerHTML = ""; 
-
-    if (enteredPassword === ADMIN_PASSWORD) {
-        database.ref('loginLog').once('value').then(snapshot => {
-            const data = snapshot.val();
-            
-            // إظهار المنطقة عند نجاح تسجيل الدخول
-            lastLoginInfo.style.display = 'block'; 
-            
-            if (data) {
-                const logArray = [];
-                Object.keys(data).forEach(key => {
-                    logArray.push(data[key]);
-                });
-
-                logArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-                // إزالة العنوان وعرض آخر 100 سجل 
-                let html = '<ol style="list-style-type: decimal; margin-right: 20px; text-align: right; padding-right: 0;">';
-                
-                // عرض آخر 100 سجل فقط
-                logArray.slice(0, 100).forEach(entry => {
-                    const date = new Date(entry.timestamp);
-                    const formattedDate = date.toLocaleDateString('ar-EG', { 
-                        year: 'numeric', month: 'short', day: 'numeric', 
-                        hour: '2-digit', minute: '2-digit', hour12: true 
-                    });
-                    // عرض الاسم والوقت
-                    html += `<li style="margin-bottom: 5px;"> قام <strong>${entry.name}</strong> بالدخول في: ${formattedDate}</li>`;
-                });
-                html += '</ol>';
-                
-                lastLoginInfo.innerHTML = html;
-                lastLoginInfo.style.color = '#333';
-            } else {
-                lastLoginInfo.textContent = "لا يوجد سجل تسجيل دخول سابق.";
-                lastLoginInfo.style.color = 'gray';
-            }
-        }).catch(error => {
-            lastLoginInfo.textContent = "خطأ في قراءة البيانات: " + error.message;
-            lastLoginInfo.style.color = 'red';
-            lastLoginInfo.style.display = 'block';
-        });
-    } else if (enteredPassword !== null) {
-        lastLoginInfo.textContent = "كلمة سر المشرف غير صحيحة.";
-        lastLoginInfo.style.color = 'red';
-        lastLoginInfo.style.display = 'block';
-    }
-}
+    <script src="script.js"></script>
+</body>
+</html>
