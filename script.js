@@ -39,13 +39,12 @@ function handleLogin(event) {
         loginScreen.style.display = 'none';
         appContent.style.display = 'block';
 
-        // حفظ آخر تسجيل دخول في Firebase
-        const lastLoginEntry = {
+        // ⬅️ إصلاح: حفظ كل تسجيل دخول في سجل 'loginLog' باستخدام push()
+        const loginEntry = {
             name: enteredName || "اسم غير مدخل", 
             timestamp: new Date().toISOString()
         };
-        // حفظ البيانات في عقدة 'lastLogin'
-        database.ref('lastLogin').set(lastLoginEntry); 
+        database.ref('loginLog').push(loginEntry); 
         
         initializeAppListeners();
         
@@ -64,7 +63,7 @@ function initializeAppListeners() {
     loadDataFromFirebase();
     document.getElementById('overtime-form').addEventListener('submit', handleFormSubmit);
     document.getElementById('clearDataButton').addEventListener('click', clearAllData);
-    document.getElementById('showLastLoginButton').addEventListener('click', showLastLogin); 
+    document.getElementById('showLastLoginButton').addEventListener('click', showLoginLog); // ⬅️ تم تغيير اسم الدالة
 }
 
 
@@ -107,7 +106,7 @@ function handleFormSubmit(event) {
 // 2. حساب إجمالي الساعات وتحديد الدور
 function calculateTotals(entriesArray) {
     const totals = {};
-    let totalHoursSum = 0; // متغير لحساب مجموع الساعات الكلي
+    let totalHoursSum = 0; 
     
     // 1. تهيئة مجموع الساعات لجميع الموظفين إلى صفر لضمان ظهورهم
     ALL_EMPLOYEES.forEach(name => {
@@ -118,7 +117,7 @@ function calculateTotals(entriesArray) {
     entriesArray.forEach(entry => {
         if (ALL_EMPLOYEES.includes(entry.name)) {
             totals[entry.name] += entry.hours;
-            totalHoursSum += entry.hours; // تجميع المجموع الكلي
+            totalHoursSum += entry.hours; 
         }
     });
 
@@ -131,7 +130,7 @@ function calculateTotals(entriesArray) {
     // 4. الفرز وتحديد الدور (الأقل ساعات أولاً)
     sortedTotals.sort((a, b) => a.totalHours - b.totalHours);
 
-    // ⬅️ منطق جديد: إذا كان مجموع الساعات الكلي صفرًا، اعرض الرسالة المطلوبة
+    // ⬅️ إصلاح منطق عرض الرسالة
     let nextInLine;
     if (totalHoursSum === 0) {
         nextInLine = "لا يوجد دوام مسجل"; 
@@ -155,7 +154,8 @@ function renderTables(overtimeEntries) {
     sortedTotals.forEach((data, index) => {
         const row = totalsBody.insertRow();
         
-        if (index === 0 && data.totalHours > 0) { // التحديد يكون فقط عندما يكون هناك دوام مسجل
+        // ⬅️ ضمان عدم تمييز أي شخص إذا كان مجموع الساعات صفر
+        if (index === 0 && data.totalHours > 0) { 
             row.classList.add('next-person');
         }
 
@@ -204,27 +204,42 @@ function clearAllData() {
     }
 }
 
-// وظيفة: عرض آخر من سجل دخوله (بكلمة سر المشرف)
-function showLastLogin() {
-    const enteredPassword = prompt("الرجاء إدخال كلمة سر المشرف لمعرفة آخر من دخل:");
+// ⬅️ وظيفة جديدة ومعدلة: عرض سجل الدخول (قائمة)
+function showLoginLog() {
+    const enteredPassword = prompt("الرجاء إدخال كلمة سر المشرف لعرض سجل الدخول:");
     const lastLoginInfo = document.getElementById('lastLoginInfo');
     
-    // مسح الرسالة السابقة
-    lastLoginInfo.textContent = ""; 
+    lastLoginInfo.innerHTML = ""; 
 
     if (enteredPassword === ADMIN_PASSWORD) {
-        database.ref('lastLogin').once('value').then(snapshot => {
+        database.ref('loginLog').once('value').then(snapshot => {
             const data = snapshot.val();
             if (data) {
-                const date = new Date(data.timestamp);
-                // تنسيق التاريخ والوقت ليكون سهل القراءة
-                const formattedDate = date.toLocaleDateString('ar-EG', { 
-                    year: 'numeric', month: 'long', day: 'numeric', 
-                    hour: '2-digit', minute: '2-digit', hour12: true 
+                const logArray = [];
+                // تحويل الكائن إلى مصفوفة للفرز
+                Object.keys(data).forEach(key => {
+                    logArray.push(data[key]);
                 });
+
+                // الفرز حسب التاريخ (الأحدث أولاً)
+                logArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                let html = '<h4>آخر 10 عمليات تسجيل دخول:</h4><ol style="list-style-type: decimal; margin-right: 25px; text-align: right; padding-right: 0;">';
                 
-                lastLoginInfo.innerHTML = `آخر من سجل دخول هو: <strong>${data.name}</strong> في ${formattedDate}.`;
-                lastLoginInfo.style.color = '#007bff';
+                // عرض آخر 10 سجلات فقط
+                logArray.slice(0, 10).forEach(entry => {
+                    const date = new Date(entry.timestamp);
+                    // تنسيق التاريخ والوقت
+                    const formattedDate = date.toLocaleDateString('ar-EG', { 
+                        year: 'numeric', month: 'short', day: 'numeric', 
+                        hour: '2-digit', minute: '2-digit', hour12: true 
+                    });
+                    html += `<li style="margin-bottom: 5px;"><strong>${entry.name}</strong> في ${formattedDate}</li>`;
+                });
+                html += '</ol>';
+                
+                lastLoginInfo.innerHTML = html;
+                lastLoginInfo.style.color = '#333';
             } else {
                 lastLoginInfo.textContent = "لا يوجد سجل تسجيل دخول سابق.";
                 lastLoginInfo.style.color = 'gray';
