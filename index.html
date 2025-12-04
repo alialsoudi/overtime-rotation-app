@@ -17,6 +17,9 @@
             <p class="company-name">شركة البوتاس العربية</p>
         </header>
         <form id="login-form">
+            <label for="loginName">اسمك للدخول:</label>
+            <input type="text" id="loginName" required> 
+            
             <label for="loginPassword">كلمة السر:</label>
             <input type="password" id="loginPassword" required>
             <button type="submit">دخول</button>
@@ -117,6 +120,12 @@
         </section>
         
         <button id="clearDataButton" class="clear-button">مسح جميع البيانات</button>
+        
+        <section class="admin-controls card">
+            <h2>معلومات المشرف الإضافية</h2>
+            <button id="showLastLoginButton" class="admin-button">سجل الدخول</button> 
+            <p id="lastLoginInfo" style="margin-top: 15px; font-weight: bold;"></p>
+        </section>
         
         <footer class="app-footer">
             جميع الحقوق محفوظة © 2025 علي السعودي
