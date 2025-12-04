@@ -234,7 +234,7 @@ function showLoginLog() {
 
                 logArray.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-                // إزالة العنوان وعرض آخر 100
+                // ⬅️ تم إزالة العنوان وعرض آخر 100 سجل 
                 let html = '<ol style="list-style-type: decimal; margin-right: 20px; text-align: right; padding-right: 0;">';
                 
                 // عرض آخر 100 سجل فقط
